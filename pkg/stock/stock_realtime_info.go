@@ -1,11 +1,6 @@
 package stock
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"time"
 )
 
@@ -46,24 +41,4 @@ type StockData struct {
 	TradeTime      time.Time              // 交易時間
 	Info           StockInformation       // 相關資訊
 	SysInfo        map[string]interface{} // 系統回傳資訊
-}
-
-func GetStockInformation(stock string) {
-	url := fmt.Sprintf(REALTIME_STOCK_INFORMATION_URL, stock)
-	log.Println(url)
-	res, err := http.Get(url)
-	if err != nil {
-		log.Println("http get stock url error: ", err)
-	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Println(err)
-	}
-	jsonMap := StockApiJson{}
-	err = json.Unmarshal([]byte(body), &jsonMap)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(jsonMap)
 }
