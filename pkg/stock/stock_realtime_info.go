@@ -9,11 +9,9 @@ import (
 	"time"
 )
 
-// twse api json 格式參考自 https://github.com/toomore/gogrs/blob/master/realtime/realtime_stock.go
+// twse api json 格式參考自 https://github.com/Asoul/tsrtc
 
 type unixMapData map[int64]StockData
-
-var REALTIME_STOCK_INFORMATION string = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=%s&json=1&delay=0"
 
 type StockSummary struct {
 	StockNumber string
@@ -51,7 +49,7 @@ type StockData struct {
 }
 
 func GetStockInformation(stock string) {
-	url := fmt.Sprintf(REALTIME_STOCK_INFORMATION, stock)
+	url := fmt.Sprintf(REALTIME_STOCK_INFORMATION_URL, stock)
 	log.Println(url)
 	res, err := http.Get(url)
 	if err != nil {
@@ -62,13 +60,10 @@ func GetStockInformation(stock string) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	jsonMap := make(map[string]interface{})
+	jsonMap := StockApiJson{}
 	err = json.Unmarshal([]byte(body), &jsonMap)
 	if err != nil {
 		log.Println(err)
 	}
-	for k, v := range jsonMap {
-		log.Println(k, v)
-	}
+	log.Println(jsonMap)
 }
