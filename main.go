@@ -1,5 +1,7 @@
 package main
 
+// github.com/davidleitw/pluto
+
 import (
 	"log"
 
@@ -7,12 +9,9 @@ import (
 )
 
 func main() {
-	// stock.GetStockInformation("tse_2610.tw")
-	info := stock.ShareHoldingQuery("tse_2610.tw")
-	log.Println(info)
-
-	a := stock.GenerateQueryString("2002", "2603", "1314", "3481")
-	log.Println(a)
-	info = stock.ShareHoldingQuery(a)
-	log.Println(info)
+	s, err := stock.GetStockNameByNumber("2610")
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(s)
 }

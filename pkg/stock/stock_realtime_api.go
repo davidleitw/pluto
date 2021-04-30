@@ -10,7 +10,8 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-var REALTIME_STOCK_INFORMATION_URL string = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=%s&json=1&delay=0"
+// twse 官方API, 不過即時股價的部份已經故障一段時間了，待更好的資料來源再來寫這邊的功能
+var REALTIME_STOCK_INFORMATION_URL string = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=%s"
 
 func init() {
 	decimal.DivisionPrecision = 4
@@ -40,11 +41,23 @@ type StockApiJson struct {
 		Z        string `json:"z"`  // 最近成交價
 		Increase float64
 	} `json:"msgArray"`
+	Querytime struct {
+		Sysdate           string `json:"sysDate"`
+		Stockinfoitem     int    `json:"stockInfoItem"`
+		Stockinfo         int    `json:"stockInfo"`
+		Sessionstr        string `json:"sessionStr"`
+		Systime           string `json:"sysTime"`
+		Showchart         bool   `json:"showChart"`
+		Sessionfromtime   int    `json:"sessionFromTime"`
+		Sessionlatesttime int    `json:"sessionLatestTime"`
+	} `json:"queryTime"`
 }
 
+// TODO: 原本要拿來作為查詢即時股價的 function, 後來發現 twse 的 api 好像已經壞掉很久了，待新資料來源
 func ShareHoldingQuery(query string) *StockApiJson {
 	realtimeInfo := &StockApiJson{}
 	queryURL := fmt.Sprintf(REALTIME_STOCK_INFORMATION_URL, query)
+	log.Println(queryURL)
 	res, err := http.Get(queryURL)
 	if err != nil {
 		log.Println("Error with ShareHoldingQuery function: ", err)
@@ -63,7 +76,6 @@ func ShareHoldingQuery(query string) *StockApiJson {
 		z, _ := strconv.ParseFloat(realtimeInfo.Msgarray[index].Z, 64)
 		increase, _ := decimal.NewFromFloat(z).Div(decimal.NewFromFloat(y)).Float64()
 		realtimeInfo.Msgarray[index].Increase = increase
-		log.Println("y = ", y, "z = ", z, "increase = ", z/y)
 	}
 	return realtimeInfo
 }
