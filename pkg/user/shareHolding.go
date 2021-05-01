@@ -1,6 +1,7 @@
 package user
 
 import (
+	"log"
 	"strconv"
 	"time"
 
@@ -45,7 +46,7 @@ func NewDetail(name string, number int) *Detail {
 	}
 }
 
-func (p *Position) addStock(StockNumber int, t time.Time, log int, price float64) error {
+func (p *Position) AddStock(StockNumber int, t time.Time, logs int, price float64) error {
 	n := strconv.Itoa(StockNumber)
 
 	stockName, err := stock.GetStockNameByNumber(n)
@@ -53,7 +54,8 @@ func (p *Position) addStock(StockNumber int, t time.Time, log int, price float64
 		return err
 	}
 
-	// cost := float64(log) * price
-
+	cost := float64(logs) * price
+	// fmt.Println(stockName, cost)
+	log.Println(stockName, cost)
 	return nil
 }
