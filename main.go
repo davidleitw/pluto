@@ -5,13 +5,12 @@ package main
 import (
 	"log"
 
-	"github.com/davidleitw/pluto/pkg/stock"
+	"github.com/davidleitw/pluto/pkg/cmd"
 )
 
 func main() {
-	s, err := stock.GetStockNameByNumber("2610")
+	err := cmd.Execute()
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(s)
 }
