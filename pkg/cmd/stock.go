@@ -4,9 +4,11 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/davidleitw/pluto/pkg/gui"
+	"github.com/davidleitw/pluto/pkg/user"
 	"github.com/spf13/cobra"
 )
 
@@ -28,12 +30,14 @@ var stockCmd *cobra.Command = &cobra.Command{
 	Short: "新增一筆交易紀錄",
 	Long:  desc,
 	Run: func(cmd *cobra.Command, args []string) {
-		m := gui.AddStockModelInitial()
+		m := gui.AddStockModelInitial(whole)
 		if err := tea.NewProgram(m).Start(); err != nil {
 			log.Println(err)
 			os.Exit(0)
 		}
-		m.ShowResult()
+		r := m.GetResult()
+		u := user.NewPosition(0.28)
+		u.AddStock(r.StockNumber, time.Now(), r.Logs, r.Price, whole)
 	},
 }
 

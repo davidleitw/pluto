@@ -54,14 +54,17 @@ func NewDetail(name string, number int) *Detail {
 	price: 買入金額
 	whole: 是否交易整張
 */
-func (p *Position) AddStock(StockNumber int, t time.Time, logs int, price float64, whole bool) (*transaction, error) {
-	n := strconv.Itoa(StockNumber)
+func (p *Position) AddStock(stockNumber int, t time.Time, logs int, price float64, whole bool) (*transaction, error) {
+	n := strconv.Itoa(stockNumber)
 
 	stockName, err := stock.GetStockNameByNumber(n)
 	if err != nil {
 		return nil, err
 	}
-
+	// 整張交易 單位要乘以1000
+	if whole {
+		logs *= 1000
+	}
 	cost := math.Floor(float64(logs) * price)
 	fee := math.Ceil(cost * 0.001425 * p.HandlingFee)
 
@@ -72,8 +75,19 @@ func (p *Position) AddStock(StockNumber int, t time.Time, logs int, price float6
 	} else if !whole && fee < 1.0 {
 		fee = 1.0
 	}
+
 	log.Printf("購買%s %d 單位: 成本 %d元 手續費 %d元 總價格 %d元", stockName, logs, int(cost), int(fee), int(cost+fee))
 
 	trans := &transaction{T: t, Total: int(cost + fee), Log: logs, Price: price, Fee: int(fee)}
+	if p.ShareHolding[stockNumber] {
+		for _, detail := range p.Details {
+			if detail.StockNumber == stockNumber {
+				detail.Items = append(detail.Items, trans)
+				break
+			}
+		}
+	} else {
+		p.Details = append(p.Details, &Detail{StockName: stockName, StockNumber: stockNumber, Items: []*transaction{trans}})
+	}
 	return trans, nil
 }
